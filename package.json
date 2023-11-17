@@ -2,8 +2,8 @@
   "name": "cpp-class-generator",
   "displayName": "cpp-class-generator",
   "description": "generate cpp class",
-  "publisher": "zy",
-  "version": "0.0.1",
+  "publisher": "Yang Zhu",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.84.0"
   },
@@ -11,7 +11,7 @@
     "Tool"
   ],
   "activationEvents": [],
-  "main": "./out/extension.js",
+  "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
@@ -35,7 +35,7 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./dist/test/runTest.js"
   },
   "devDependencies": {
     "@types/vscode": "^1.84.0",

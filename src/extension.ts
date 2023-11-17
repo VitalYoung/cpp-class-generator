@@ -2,17 +2,30 @@
 
 import * as vscode from 'vscode';
 
-function createCppClass(className: string, folderPath: string) {
+function createCppClass(className: string, NameSpace: string, folderPath: string) {
     const date = new Date();
-    const cppCode = `#include "${className}.h"
+    let NameSpaceStrStart = '';
+    let NameSpaceStrEnd = '';
+    if (NameSpace != '') {
+        NameSpaceStrStart = '\n';
+        NameSpace.split('::').forEach(element => {
+            if (element != '') {
+                NameSpaceStrStart += `namespace ${element} {\n`;
+                NameSpaceStrEnd += `} // namespace ${element}\n`;
+            }
+        });
+    }
 
+    const cppCode = `#include "${className}.h"
+${NameSpaceStrStart}
 ${className}::${className}() {
   // Constructor
 }
 
 ${className}::~${className}() {
   // Destructor
-}`;
+}
+${NameSpaceStrEnd}`;
 
     const headerCode = `// Copyright(c) 2013-2028 Hongjing
 // All rights reserved.
@@ -22,7 +35,7 @@ ${className}::~${className}() {
 
 #ifndef ${className.toUpperCase()}_H_
 #define ${className.toUpperCase()}_H_
-
+${NameSpaceStrStart}
 class ${className} {
 
  public:
@@ -34,8 +47,9 @@ class ${className} {
   ${className}& operator=(${className}&&) = delete;
 
 };
-
-#endif // ${className.toUpperCase()}_H_`;
+${NameSpaceStrEnd}
+#endif // ${className.toUpperCase()}_H_
+`;
 
     const cppFilePath = vscode.Uri.file(`${folderPath}/${className}.cpp`);
     const headerFilePath = vscode.Uri.file(`${folderPath}/${className}.h`);
@@ -52,16 +66,21 @@ export function activate(context: vscode.ExtensionContext) {
     let disposable = vscode.commands.registerCommand('cppClassGenerator.createCppClass', (uri:vscode.Uri) => {
         vscode.window.showInputBox({ prompt: 'Enter the class name' }).then(className => {
             if (className) {
-                let folderPath = '';
-                if (uri) {
-                  folderPath = uri.fsPath || '';
-                }
-                console.log(folderPath);
-                createCppClass(className, folderPath);
+                vscode.window.showInputBox({ prompt: 'Enter the class namespace' }).then(NameSpace => {
+                    let folderPath = '';
+                    if (uri) {
+                        folderPath = uri.fsPath || '';
+                    }
+                    console.log(folderPath);
+                    if (NameSpace) {
+                        createCppClass(className, NameSpace, folderPath);
+                    } else {
+                        createCppClass(className, '', folderPath);
+                    }
+                });
             }
         });
     });
-
     context.subscriptions.push(disposable);
 }
 
