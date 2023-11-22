@@ -3,7 +3,8 @@
   "displayName": "cpp-class-generator",
   "description": "generate cpp class",
   "publisher": "Yang Zhu",
-  "version": "0.0.2",
+  "version": "0.0.3",
+  "repository": "https://github.com/VitalYoung/cpp-class-generator",
   "engines": {
     "vscode": "^1.84.0"
   },

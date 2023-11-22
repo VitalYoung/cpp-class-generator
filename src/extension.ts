@@ -2,22 +2,33 @@
 
 import * as vscode from 'vscode';
 
-function createCppClass(className: string, NameSpace: string, folderPath: string) {
+function camelToSnake(camelCase: string): string {
+    return camelCase.replace(/[A-Z]/g, (match, index) => (
+        index === 0 ? match.toLowerCase() : `_${match.toLowerCase()}`));
+}
+
+function createCppClass(className: string, nameSpace: string, folderPath: string) {
     const date = new Date();
-    let NameSpaceStrStart = '';
-    let NameSpaceStrEnd = '';
-    if (NameSpace != '') {
-        NameSpaceStrStart = '\n';
-        NameSpace.split('::').forEach(element => {
+    const fileName = camelToSnake(className);
+    // process namespace
+    let nameSpaceStr='';
+    let nameSpaceStrStart = '';
+    let nameSpaceStrEnd = '';
+    if (nameSpace != '') {
+        nameSpaceStrStart = '\n';
+        nameSpace.split('::').forEach(element => {
             if (element != '') {
-                NameSpaceStrStart += `namespace ${element} {\n`;
-                NameSpaceStrEnd += `} // namespace ${element}\n`;
+                nameSpaceStr += `${element}_`;
+                nameSpaceStrStart += `namespace ${element} {\n`;
+                nameSpaceStrEnd += `} // namespace ${element}\n`;
             }
         });
     }
+    const headerGuard = `${nameSpaceStr.toUpperCase()}${fileName.toUpperCase()}_H_`;
 
-    const cppCode = `#include "${className}.h"
-${NameSpaceStrStart}
+    // process cpp code
+    const cppCode = `#include "${fileName}.h"
+${nameSpaceStrStart}
 ${className}::${className}() {
   // Constructor
 }
@@ -25,17 +36,18 @@ ${className}::${className}() {
 ${className}::~${className}() {
   // Destructor
 }
-${NameSpaceStrEnd}`;
+${nameSpaceStrEnd}`;
 
+    // process header code
     const headerCode = `// Copyright(c) 2013-2028 Hongjing
 // All rights reserved.
 //
 // Author: Yang Zhu
 // Update: ${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}
 
-#ifndef ${className.toUpperCase()}_H_
-#define ${className.toUpperCase()}_H_
-${NameSpaceStrStart}
+#ifndef ${headerGuard}
+#define ${headerGuard}
+${nameSpaceStrStart}
 class ${className} {
 
  public:
@@ -47,12 +59,12 @@ class ${className} {
   ${className}& operator=(${className}&&) = delete;
 
 };
-${NameSpaceStrEnd}
-#endif // ${className.toUpperCase()}_H_
+${nameSpaceStrEnd}
+#endif // ${headerGuard}
 `;
 
-    const cppFilePath = vscode.Uri.file(`${folderPath}/${className}.cpp`);
-    const headerFilePath = vscode.Uri.file(`${folderPath}/${className}.h`);
+    const cppFilePath = vscode.Uri.file(`${folderPath}/${fileName}.cpp`);
+    const headerFilePath = vscode.Uri.file(`${folderPath}/${fileName}.h`);
 
     vscode.workspace.fs.writeFile(cppFilePath, Buffer.from(cppCode));
     vscode.workspace.fs.writeFile(headerFilePath, Buffer.from(headerCode));

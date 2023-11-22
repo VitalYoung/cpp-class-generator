@@ -6,6 +6,9 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Released]
 
+- 0.0.3
+> 1. fix cpp/h file name
+
 - 0.0.2
 > 1. support namespace
 
