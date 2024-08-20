@@ -20,14 +20,23 @@ function createCppClass(className: string, nameSpace: string, folderPath: string
             if (element != '') {
                 nameSpaceStr += `${element}_`;
                 nameSpaceStrStart += `namespace ${element} {\n`;
-                nameSpaceStrEnd += `} // namespace ${element}\n`;
+            }
+        });
+        nameSpace.split('::').reverse().forEach(element => {
+            if (element != '') {
+                nameSpaceStrEnd += `}  // namespace ${element}\n`;
             }
         });
     }
     const headerGuard = `${nameSpaceStr.toUpperCase()}${fileName.toUpperCase()}_H_`;
 
     // process cpp code
-    const cppCode = `#include "${fileName}.h"
+    const cppCode = `// Copyright(c) 2023-2028 Hongjing
+// All rights reserved.
+//
+// Author: Yang Zhu
+// Update: ${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}
+#include "${fileName}.h"
 ${nameSpaceStrStart}
 ${className}::${className}() {
   // Constructor
@@ -39,7 +48,7 @@ ${className}::~${className}() {
 ${nameSpaceStrEnd}`;
 
     // process header code
-    const headerCode = `// Copyright(c) 2013-2028 Hongjing
+    const headerCode = `// Copyright(c) 2023-2028 Hongjing
 // All rights reserved.
 //
 // Author: Yang Zhu
@@ -49,7 +58,6 @@ ${nameSpaceStrEnd}`;
 #define ${headerGuard}
 ${nameSpaceStrStart}
 class ${className} {
-
  public:
   ${className}();
   ~${className}();
@@ -57,10 +65,9 @@ class ${className} {
   ${className}& operator=(${className} const&) = delete;
   ${className}(${className}&&) = delete;
   ${className}& operator=(${className}&&) = delete;
-
 };
 ${nameSpaceStrEnd}
-#endif // ${headerGuard}
+#endif  // ${headerGuard}
 `;
 
     const cppFilePath = vscode.Uri.file(`${folderPath}/${fileName}.cpp`);
